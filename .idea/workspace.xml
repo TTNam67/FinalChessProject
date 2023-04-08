@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="94852e94-f2af-4020-a683-8a71d6d6cec9" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Chess/model/Move.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Chess/model/Piece.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -17,6 +19,7 @@
       <list>
         <option value="Interface" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
