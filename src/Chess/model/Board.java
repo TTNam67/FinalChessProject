@@ -18,7 +18,7 @@ public class Board implements Cloneable, Serializable
     private Piece lastMoved = null; // The Piece just moved
 
 
-    //Constructors
+    //Constructors:
     // Create and save initial information of all pieces into "pieces" array
     public Board(boolean initPiece)
     {
@@ -42,9 +42,7 @@ public class Board implements Cloneable, Serializable
         this.previousState = previousState;
 
         for (Piece p : pieces)
-        {
             this.pieces.add(p.clone());
-        }
     }
 
     @Override
@@ -52,30 +50,13 @@ public class Board implements Cloneable, Serializable
 
 
     //Getters
-    public Board getPreviousState() {
-        return previousState;
-    }
-    public List<Piece> getAllPieces() {
-        return this.pieces;
-    }
-    public Piece getLastMoved() {
-        return lastMoved;
-    }
-    public Piece getInCheck() {
-        return inCheck;
-    }
-    public boolean isWhiteTurn() {
-        return this.whiteTurn;
-    }
+    public Board getPreviousState() {return previousState;}
+    public List<Piece> getAllPieces() {return this.pieces;}
+    public Piece getLastMoved() {return lastMoved;}
+    public Piece getInCheck() {return inCheck;}
+    public boolean isWhiteTurn() {return this.whiteTurn;}
 
 
-
-
-    //Setters
-
-
-
-    // Tìm quân cờ đứng tại vị trí pPos, không có thì trả về null
 //    Fine the piece is in the "pPos" position, if there no any piece return "null"
     public Piece getPieceAt(Point pPos)
     {
@@ -112,9 +93,7 @@ public class Board implements Cloneable, Serializable
     }
 
 //    Add "p" piece into "pieces" list
-    public void addPiece(Piece p) {
-        pieces.add(p);
-    }
+    public void addPiece(Piece p) {pieces.add(p);}
 
     // Perform move
     public void makeMove(Move move)
@@ -132,7 +111,7 @@ public class Board implements Cloneable, Serializable
         this.lastMoved = move.getMovedPiece();
 
         // Save the checked king into "inCheck"
-        {}
+        this.inCheck = this.kingInCheck();
 
         // Change turn to the other player
         this.whiteTurn = !whiteTurn;
@@ -145,15 +124,70 @@ public class Board implements Cloneable, Serializable
     }
 
     // Check if a move puts own king in check
-    {}
+    public boolean movePutsKingInCheck(Move move, boolean isWhite)
+    {
+        // Create the board after perform given move
+        Board board = new Board(false);
+        board = tryMove(move);
+
+        // Go through all the opponent's piece
+        for (Piece piece : board.getAllPieces())
+        {
+            if (piece.white != isWhite)
+            {
+                // check whether piece capture king or not.
+                for (Move muv : piece.calculatePossibleMoves(board, false))
+                    // if a move would result in the capture of a king
+                    if (muv.getCapturedPiece() instanceof King)
+                        return true;
+
+            }
+        }
+        return false;
+    }
 
     // Perform the move on a new copied board and return that board
-    {}
+    public Board tryMove(Move move)
+    {
+        // creates a copy of the board
+        Board copyBoard = this.clone();
+
+        // if this is a "CastleMove"
+        {}
+
+        // Other type of move
+        // creates a copy of the move for the copied board
+        Piece capture = null;
+        if (move.getCapturedPiece() != null)
+        {
+            capture = copyBoard.getPieceAt(move.getCapturedPiece().getPiecePosition());
+        }
+
+        Piece moving = copyBoard.getPieceAt(move.getMovedPiece().getPiecePosition());
+
+        // performs the move on the copied board
+        copyBoard.makeMove(new Move(moving, move.getMoveTo(), capture));
+
+
+        // returns the copied board with the move executed
+        return copyBoard;
+    }
 
     // Check if there is any king in checked
-    {}
+    private Piece kingInCheck()
+    {
+        for (Piece pc : pieces)
+            for (Move mv : pc.calculatePossibleMoves(this, false))
+                if (mv.getCapturedPiece() instanceof King)
+                {
+                    this.inCheck = mv.getCapturedPiece();
+                    return mv.getCapturedPiece();
+                }
+        return null;
+    }
 
     // Check if a Pawn is ready to promotion
+    {}
 
     // Check if the Game has ended
     {}

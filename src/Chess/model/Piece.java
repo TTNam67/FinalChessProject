@@ -20,9 +20,12 @@ public abstract class Piece implements Cloneable, Serializable
     protected boolean white; //is this white piece ot not?
     protected Point piecePosition; // Position of the piece
     protected boolean firstMove = true; // Is this my move?
+    // Calculate all possible moves, and return a list contains these moves
+    public abstract List<Move> calculatePossibleMoves(Board board, boolean checkKing);
 
     //Getters
     public Point getPiecePosition() {return piecePosition;}
+
     public boolean isFirstMove() {return firstMove;}
     public boolean isWhite() {return this.white;}
 
@@ -34,6 +37,19 @@ public abstract class Piece implements Cloneable, Serializable
 
     public void setWhite(boolean white) {this.white = white;}
 
+    // Trong số các nước đi khả thi, loại bỏ đi các nước đi có thể đưa quân vua vào 1 nước bị chiếu
+    // In the possible moves, eliminate all the moves that makes the king get checked
+    protected void removeMovesPutsKingInCheck(Board board, List<Move> movesList)
+    {
+        for(int i = 0; i < movesList.size(); ++i)
+        {
+            if(board.movePutsKingInCheck(movesList.get(i), this.white))
+            {
+                movesList.remove(movesList.get(i));
+                --i;
+            }
+        }
+    }
 
     // Move the piece to "destination"
     public void moveTo(Point destination)
