@@ -44,7 +44,7 @@ public abstract class Piece implements Cloneable, Serializable
 
     public abstract String toString();
     @Override
-    protected abstract Piece clone(); 
+    protected abstract Piece clone();
 
     public abstract String getImageName();
 }
