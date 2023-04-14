@@ -36,6 +36,7 @@ public class King extends Piece
 
         int[] dx = { -1, 0, 1, 1, 1, 0, -1, -1 };
         int[] dy = { -1, -1, -1, 0, 1, 1, 1, 0};
+
         // add moves around the king if they are valid
         for (int i = 0; i < 8; ++i) {
             addIfValid(board, moves, new Point(x + dx[i], y + dy[i]));
