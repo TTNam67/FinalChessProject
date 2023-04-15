@@ -26,7 +26,33 @@ public class Board implements Cloneable, Serializable
 
         // If the board need to be initial pieces
         if (initPiece)
-        {}
+        {
+            // black pieces
+            pieces.add(new Rook(new Point(0, 0), false));
+            pieces.add(new Knight(new Point(1, 0), false));
+            pieces.add(new Bishop(new Point(2, 0), false));
+            pieces.add(new Queen(new Point(3, 0), false));
+            pieces.add(new King(new Point(4, 0), false));
+            pieces.add(new Bishop(new Point(5, 0), false));
+            pieces.add(new Knight(new Point(6, 0), false));
+            pieces.add(new Rook(new Point(7, 0), false));
+            for (int col = 0; col < GameConstant.GAME_SIZE; ++col) {
+                pieces.add(new Pawn(new Point(col, 1), false));
+            }
+
+            // white player
+            pieces.add(new Rook(new Point(0, 7), true));
+            pieces.add(new Knight(new Point(1, 7), true));
+            pieces.add(new Bishop(new Point(2, 7), true));
+            pieces.add(new Queen(new Point(3, 7), true));
+            pieces.add(new King(new Point(4, 7), true));
+            pieces.add(new Bishop(new Point(5, 7), true));
+            pieces.add(new Knight(new Point(6, 7), true));
+            pieces.add(new Rook(new Point(7, 7), true));
+            for (int col = 0; col < GameConstant.GAME_SIZE; ++col) {
+                pieces.add(new Pawn(new Point(col, 6), true));
+            }
+        }
     }
 
     // Constructor for clone method
@@ -96,16 +122,46 @@ public class Board implements Cloneable, Serializable
     public void addPiece(Piece p) {pieces.add(p);}
 
     // Perform move
-    public void makeMove(Move move)
+    public void makeMove(Move move, boolean humanMove)
     {
         // Save this board's state before make a move
         this.previousState = this.clone();
 
         // Implement en passant (bắt tốt qua đường)
-        {}
+        for (Piece piece : this.pieces)
+            if (piece.isWhite() == this.whiteTurn && piece instanceof Pawn)
+                ((Pawn) piece).enPassantOK = false;
 
         // Castle move (The change-position-movement of the Rook and the King)
-        {}
+        if (move instanceof CastleMove)
+        {
+            CastleMove castleMove = (CastleMove) move;
+            castleMove.getMovedPiece().moveTo(castleMove.getMoveTo());
+            castleMove.getRook().moveTo(castleMove.getRookMoveTo());
+        }
+        else
+        {
+            if (move.getCapturedPiece() != null)
+            {
+                this.removePiece(move.getCapturedPiece());
+            }
+
+            // implementing en passant rule
+            if (move.getMovedPiece() instanceof Pawn)
+            {
+                if (Math.abs(move.getMovedPiece().getPiecePosition().y - move.getMoveTo().y) == 2)
+                {
+                    ((Pawn) move.getMovedPiece()).enPassantOK = true;
+                }
+            }
+            move.getMovedPiece().moveTo(move.getMoveTo());
+
+            // promote pawn if reached final rank
+            if (move.getMovedPiece() instanceof Pawn)
+            {
+                checkPawnPromotion(move.getMovedPiece(), humanMove);
+            }
+        }
 
         // Update properties of board
         this.lastMoved = move.getMovedPiece();
@@ -153,20 +209,32 @@ public class Board implements Cloneable, Serializable
         Board copyBoard = this.clone();
 
         // if this is a "CastleMove"
-        {}
-
-        // Other type of move
-        // creates a copy of the move for the copied board
-        Piece capture = null;
-        if (move.getCapturedPiece() != null)
+        if (move instanceof CastleMove)
         {
-            capture = copyBoard.getPieceAt(move.getCapturedPiece().getPiecePosition());
+            // creates a copy of the move for the copied board
+            CastleMove c = (CastleMove) move;
+            Piece king = copyBoard.getPieceAt(c.getMovedPiece().getPiecePosition());
+            Piece rook = copyBoard.getPieceAt(c.getRook().getPiecePosition());
+
+            // performs the move on the copied board
+            copyBoard.makeMove(new CastleMove(king, c.getMoveTo(), rook, c.getRookMoveTo()), false);
         }
 
-        Piece moving = copyBoard.getPieceAt(move.getMovedPiece().getPiecePosition());
+        // Other type of move
+        else
+        {
+            // creates a copy of the move for the copied board
+            Piece capture = null;
+            if (move.getCapturedPiece() != null)
+            {
+                capture = copyBoard.getPieceAt(move.getCapturedPiece().getPiecePosition());
+            }
 
-        // performs the move on the copied board
-        copyBoard.makeMove(new Move(moving, move.getMoveTo(), capture));
+            Piece moving = copyBoard.getPieceAt(move.getMovedPiece().getPiecePosition());
+
+            // performs the move on the copied board
+            copyBoard.makeMove(new Move(moving, move.getMoveTo(), capture), false);
+        }
 
 
         // returns the copied board with the move executed
@@ -187,10 +255,70 @@ public class Board implements Cloneable, Serializable
     }
 
     // Check if a Pawn is ready to promotion
-    {}
+    private void checkPawnPromotion(Piece pawn, boolean showdialog)
+    {
+        if (pawn instanceof Pawn && (pawn.getPiecePosition().y == 0 || pawn.getPiecePosition().y == 7))
+        {
+            Piece promotedPiece = null;
+
+            // if ai, automatically promote to queen
+            {}
+
+            // else, give the player a choice
+            Object type = JOptionPane.showInputDialog(null, "", "Choose promotion:", JOptionPane.QUESTION_MESSAGE,
+                    null, new Object[] { "Queen", "Rook", "Bishop", "Knight" }, "Queen");
+
+            // will be null if JOptionPane is cancelled or close
+            // default is to queen
+            if (type == null)
+            {
+                type = "Queen";
+            }
+
+            if (type.toString().equals("Queen"))
+            {
+                promotedPiece = new Queen(pawn.getPiecePosition(), pawn.isWhite());
+            }
+            else if (type.toString().equals("Rook"))
+            {
+                promotedPiece = new Rook(pawn.getPiecePosition(), pawn.isWhite());
+            }
+            else if (type.toString().equals("Bishop"))
+            {
+                promotedPiece = new Bishop(pawn.getPiecePosition(), pawn.isWhite());
+            }
+            else
+            {
+                promotedPiece = new Knight(pawn.getPiecePosition(), pawn.isWhite());
+            }
+
+
+            // remove pawn and add promoted piece to board
+            this.pieces.remove(pawn);
+            this.pieces.add(promotedPiece);
+        }
+    }
 
     // Check if the Game has ended
-    {}
+    public boolean EndGame() {
+        List<Move> whiteMoves = new ArrayList<>();
+        List<Move> blackMoves = new ArrayList<>();
+
+        for (Piece piece : this.getAllPieces())
+        {
+            if (piece.white)
+            {
+                whiteMoves.addAll(piece.calculatePossibleMoves(this, true));
+            }
+            else
+            {
+                blackMoves.addAll(piece.calculatePossibleMoves(this, true));
+            }
+        }
+
+        // Captured both checkmate case and stalemate case
+        return (whiteMoves.size() == 0 || blackMoves.size() == 0);
+    }
 
     // Convert the board into console graphic
     @Override
