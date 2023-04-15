@@ -43,6 +43,69 @@ public class King extends Piece
         }
 
         // "CastleMove"
+        if (this.firstMove)
+        {
+            // if " " and this king is not the king in checked
+            if (checkKing && this != board.getInCheck())
+            {
+                List<Piece> pieces = board.getAllPieces();
+                List<Piece> satisfiedRooks = new ArrayList<Piece>();
+
+                // finds all "Rook" available for castling
+                for (int i = 0; i < pieces.size(); i++)
+                {
+                    //(condition to be satisfied: same color and this is the first move)
+                    if (pieces.get(i) instanceof Rook
+                            && pieces.get(i).white == this.white
+                            && pieces.get(i).firstMove)
+                    {
+                        satisfiedRooks.add(pieces.get(i));
+                    }
+                }
+
+                // for each eligible rook
+                for (Piece p : satisfiedRooks)
+                {
+                    boolean canCastle = true;
+
+                    // if on right side of board
+                    if (p.getPiecePosition().x == 7)
+                    {
+                        // if there are pieces between the king and the rook
+                        for (int ix = this.piecePosition.x + 1; ix < 7; ix++)
+                        {
+                            if (board.getPieceAt(new Point(ix, y)) != null)
+                            {
+                                // castling is not possible
+                                canCastle = false;
+                                break;
+                            }
+                        }
+                        if (canCastle)
+                            moves.add(new CastleMove(this, new Point(x + 2, y), p, new Point(x + 1, y)));
+                    }
+
+                    // if on left side of board
+                    else if (p.getPiecePosition().x == 0)
+                    {
+                        // if there are pieces between the king and the rook
+                        for (int ix = this.piecePosition.x - 1; ix > 0; ix--)
+                        {
+                            if (board.getPieceAt(new Point(ix, y)) != null)
+                            {
+                                // castling is not possible
+                                canCastle = false;
+                                break;
+                            }
+                        }
+                        if (canCastle)
+                        {
+                            moves.add(new CastleMove(this, new Point(x - 2, y), p, new Point(x - 1, y)));
+                        }
+                    }
+                }
+            }
+        }
 
         // Remove moves that making own king in check
         if (checkKing) {
@@ -60,7 +123,7 @@ public class King extends Piece
             Piece pc = board.getPieceAt(point);
             if (pc == null || pc.white != this.white)
             {
-                // all the move to the list
+                // add the move to the list
                 moves.add(new Move(this, point, pc));
             }
         }

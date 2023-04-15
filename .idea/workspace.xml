@@ -7,6 +7,8 @@
     <list default="true" id="94852e94-f2af-4020-a683-8a71d6d6cec9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Progress.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Progress.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chess/model/King.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chess/model/King.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chess/model/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chess/model/Piece.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

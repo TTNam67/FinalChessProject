@@ -7,11 +7,15 @@
 
 + Bishop.java
 + Board.java
++ CastleMove.java: done
 + King.java: done
 + Move.java
 + Pawn.java: done
 + Piece.java
++ Rook.java: done
 
 - View
 
 - Chess.java
+
+- The King cannot castle if the castle go through a check

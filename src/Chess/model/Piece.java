@@ -19,7 +19,7 @@ public abstract class Piece implements Cloneable, Serializable
 {
     protected boolean white; //is this white piece ot not?
     protected Point piecePosition; // Position of the piece
-    protected boolean firstMove = true; // Is this my move?
+    protected boolean firstMove = true; // Is this the first move?
     // Calculate all possible moves, and return a list contains these moves
     public abstract List<Move> calculatePossibleMoves(Board board, boolean checkKing);
 
