@@ -4,9 +4,12 @@
 
 - Controller:
 - Model:
+
 + Bishop.java
 + Board.java
++ King.java: done
 + Move.java
++ Pawn.java: done
 + Piece.java
 
 - View
