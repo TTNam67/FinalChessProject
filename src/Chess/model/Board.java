@@ -55,6 +55,8 @@ public class Board implements Cloneable, Serializable
         }
     }
 
+
+
     // Constructor for clone method
     private Board(boolean whiteTurn, Board previousState, List<Piece> pieces, Piece lastMoved, Piece inCheck)
     {

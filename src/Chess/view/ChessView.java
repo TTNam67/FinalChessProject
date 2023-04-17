@@ -11,12 +11,14 @@ public class ChessView extends JFrame {
     // Convert data sent from controller into GUI.
     private ChessController chessGame;
 
-    public ChessView(ChessController chessGame) {
+    public ChessView(ChessController chessGame)
+    {
         super("Chess");
         this.chessGame = chessGame;
     }
 
-    public void initComponents() {
+    public void initComponents()
+    {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setMinimumSize(GameConstant.BOARD_PANEL_DIMENSION);
         this.setLocationRelativeTo(null);

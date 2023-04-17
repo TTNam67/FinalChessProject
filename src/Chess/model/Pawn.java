@@ -44,7 +44,7 @@ public class Pawn extends Piece
         if (this.white) toward = -1;
         else toward = 1;
 
-        // checks moves where the pawn can be promoted
+        // checks moves where the pawn can take an advanced move
         advance(moves, board, x, y, toward);
 
         // checks moves where the pawn captures another piece
