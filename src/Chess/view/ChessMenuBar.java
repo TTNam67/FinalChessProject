@@ -23,8 +23,8 @@ public class ChessMenuBar extends JMenuBar {
     private void buildMenuBar() {
         jMenu_Game.setText("Game");
 
-//        jMenuItem_New1P.setText("New AI game");
-//        jMenu_Game.add(jMenuItem_New1P);
+        jMenuItem_New1P.setText("New AI game");
+        jMenu_Game.add(jMenuItem_New1P);
         jMenuItem_New2P.setText("New game");
         jMenu_Game.add(jMenuItem_New2P);
         jMenuItem_Undo.setText("Undo");

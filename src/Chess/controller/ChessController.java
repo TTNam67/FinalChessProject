@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import Chess.constant.GameStatus;
-
+import Chess.model.Ai;
 import Chess.model.Board;
 import Chess.model.Data;
 import Chess.model.Move;
@@ -91,12 +91,12 @@ public class ChessController {
                 newGame();
             }
         });
-//        this.chessMenuBar.getjMenuItem_New1P().addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                newAIGame();
-//            }
-//        });
+        this.chessMenuBar.getjMenuItem_New1P().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                newAIGame();
+            }
+        });
         this.chessMenuBar.getjMenuItem_Close().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -124,7 +124,8 @@ public class ChessController {
         });
     }
 
-    private void save() {
+    private void save()
+    {
         // asks the user for a save name
         String name = JOptionPane.showInputDialog(this.chessView.getBoardPanel(), "Save file name: ");
 
@@ -141,7 +142,8 @@ public class ChessController {
         }
     }
 
-    protected void load() {
+    protected void load()
+    {
         File[] allSavedFile = data.getAllSavedFile();
         if (allSavedFile == null) {
             JOptionPane.showMessageDialog(this.chessView.getBoardPanel(), "No saved games found", "Load game",
@@ -177,26 +179,40 @@ public class ChessController {
     {
         this.selectedPiece = null;
         this.validMoves = null;
-
-        Board testBoard;
-
-        // If this is an "AI vs Player" game
-        {}
         // if a two player game
-        testBoard = this.gameBoard.getPreviousState();
-
+        Board testBoard;
+        if (this.gameBoard.getAi() == null)
+        {
+            // skip back one move
+            testBoard = this.gameBoard.getPreviousState();
+        }
+        else
+        {
+            // skip back to the last move by the player
+            if (this.gameBoard.isWhiteTurn() != this.gameBoard.getAi().isWhite())
+            {
+                testBoard = this.gameBoard.getPreviousState().getPreviousState();
+            }
+            else
+            {
+                testBoard = this.gameBoard.getPreviousState();
+            }
+        }
 
         if (testBoard != null)
         {
             this.gameBoard = testBoard;
-        } else {
+        }
+        else
+        {
             JOptionPane.showMessageDialog(this.chessView.getBoardPanel(), "Undo failed!", "",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
         // set the game status to started
         status = GameStatus.STARTED;
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
             public void run() {
                 chessView.getBoardPanel().drawBoard();
@@ -204,20 +220,81 @@ public class ChessController {
         });
     }
 
-    protected void newGame() {
+    protected void newGame()
+    {
         this.gameBoard = new Board(true);
         this.status = GameStatus.STARTED;
         this.selectedPiece = null;
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 chessView.getBoardPanel().drawBoard();
             }
         });
     }
 
-    //New AI Game
-    {}
+    private void newAIGame()
+    {
+        int aiDepth;
+        boolean whiteAI;
+
+        // creates a JOptionPane to ask the user for the difficulty of the ai
+        Object level = JOptionPane.showInputDialog(this.chessView.getBoardPanel(), "Select AI level:", "New AI game",
+                JOptionPane.QUESTION_MESSAGE, null, new Object[] { "Easy", "Normal", "Hard" }, "Easy");
+
+        // interprets JOptionPane result
+        if (level == null)
+        {
+            return;
+        }
+        else
+        {
+            if (level.toString().equals("Easy"))
+                aiDepth = 2;
+            else if (level.toString().equals("Normal"))
+                aiDepth = 3;
+            else
+                aiDepth = 4;
+        }
+
+        // creates a JOptionPane to ask the user for the ai color
+        Object color = JOptionPane.showInputDialog(this.chessView.getBoardPanel(), "Select AI Color:", "New AI game",
+                JOptionPane.QUESTION_MESSAGE, null, new Object[] { "Black", "White" }, "Black");
+
+        // interprets JOptionPane result
+        if (color == null) {
+            return;
+        } else {
+            if (color.toString().equals("White"))
+            {
+                whiteAI = true;
+            } else {
+                whiteAI = false;
+            }
+        }
+
+        // creates a new game
+        this.newGame();
+        // then sets the ai for the board
+        this.gameBoard.setAi(new Ai(whiteAI, aiDepth));
+        // Make ai move a piece if in white side then redraw the board
+        if(this.gameBoard.getAi().isWhite())
+        {
+            Move computerMove = this.gameBoard.getAi().getMove(this.gameBoard);
+            this.gameBoard.makeMove(computerMove, false);
+            this.lastmovedPiece = computerMove.getMovedPiece();
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    chessView.getBoardPanel().drawBoard();
+                }
+            });
+        }
+    }
 
     public void addTilesMouseListener(ArrayList<TilePanel> tilePanels) {
         // For dynamic GUI and basic piece movements
@@ -251,23 +328,27 @@ public class ChessController {
 
     private void responseToPlayerAction(TilePanel tilePanel)
     {
-        //this.gameBoard.getAi() == null: true1
-        // || this.gameBoard.getAi().isWhite() != this.gameBoard.isWhiteTurn()
-        if (true)
+        if (this.gameBoard.getAi() == null || this.gameBoard.getAi().isWhite() != this.gameBoard.isWhiteTurn())
         {
             this.lastmovedPiece = null;
-            if (this.selectedPiece == null) {
+            if (this.selectedPiece == null)
+            {
                 // select the piece that was clicked
                 this.selectedPiece = this.gameBoard.getPieceAt(tilePanel.getPosition());
-                if (selectedPiece != null) {
+                if (selectedPiece != null)
+                {
                     // get the available moves for the piece
                     this.validMoves = this.selectedPiece.calculatePossibleMoves(this.gameBoard, true);
+
                     // if the piece is of the wrong color, mark as invalid
-                    if (this.selectedPiece.isWhite() != this.gameBoard.isWhiteTurn()) {
+                    if (this.selectedPiece.isWhite() != this.gameBoard.isWhiteTurn())
+                    {
                         this.invalidSelectedPiece = this.selectedPiece;
                         this.validMoves = null;
                         this.selectedPiece = null;
-                    } else {
+                    }
+                    else
+                    {
                         this.invalidSelectedPiece = null;
                     }
                 }
@@ -290,22 +371,16 @@ public class ChessController {
                     // selection is same player,
                     // otherwise keep the current selection
                     Piece pieceOnTile = this.gameBoard.getPieceAt(tilePanel.getPosition());
-                    if (pieceOnTile != null)
-                    {
-                        if (pieceOnTile.isWhite() == this.gameBoard.isWhiteTurn())
-                        {
+                    if (pieceOnTile != null) {
+                        if (pieceOnTile.isWhite() == this.gameBoard.isWhiteTurn()) {
                             this.selectedPiece = pieceOnTile;
                             this.validMoves = this.selectedPiece.calculatePossibleMoves(this.gameBoard, true);
-                        }
-                        else
-                        {
+                        } else {
                             this.selectedPiece = null;
                             this.validMoves = null;
                             this.invalidSelectedPiece = pieceOnTile;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         this.selectedPiece = null;
                         this.validMoves = null;
                     }
@@ -313,19 +388,17 @@ public class ChessController {
             }
         }
 
-//        if (this.gameBoard.getAi() != null && this.gameBoard.getAi().isWhite() == this.gameBoard.isWhiteTurn()) {
-//            this.lastmovedPiece = null;
-//            Move computerMove = this.gameBoard.getAi().getMove(gameBoard);
-//            if (computerMove != null) {
-//                this.gameBoard.makeMove(computerMove, false);
-//                this.lastmovedPiece = computerMove.getMovedPiece();
-//            }
-//        }
-        if (this.gameBoard.EndGame())
-        {
+        if (this.gameBoard.getAi() != null && this.gameBoard.getAi().isWhite() == this.gameBoard.isWhiteTurn()) {
+            this.lastmovedPiece = null;
+            Move computerMove = this.gameBoard.getAi().getMove(gameBoard);
+            if (computerMove != null) {
+                this.gameBoard.makeMove(computerMove, false);
+                this.lastmovedPiece = computerMove.getMovedPiece();
+            }
+        }
+        if (this.gameBoard.EndGame()) {
             // repaint board immediately, before JOptionPane is shown.
-            SwingUtilities.invokeLater(new Runnable()
-            {
+            SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     chessView.getBoardPanel().drawBoard();
@@ -337,18 +410,14 @@ public class ChessController {
                 this.status = GameStatus.STALEMATE;
                 JOptionPane.showMessageDialog(this.chessView.getBoardPanel(), "Stalemate!", "",
                         JOptionPane.INFORMATION_MESSAGE);
-            }
-            else
-            {
+            } else {
                 // if a king is in check, checkmate
                 this.status = GameStatus.CHECKMATE;
                 JOptionPane.showMessageDialog(this.chessView.getBoardPanel(), "Checkmate!", "",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         }
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 chessView.getBoardPanel().drawBoard();
@@ -356,12 +425,9 @@ public class ChessController {
         });
     }
 
-    private Move moveWithDestination(Point point)
-    {
-        for (Move move : this.validMoves)
-        {
-            if (move.getMoveTo().equals(point))
-            {
+    private Move moveWithDestination(Point point) {
+        for (Move move : this.validMoves) {
+            if (move.getMoveTo().equals(point)) {
                 return move;
             }
         }
